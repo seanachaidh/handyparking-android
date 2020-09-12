@@ -21,16 +21,6 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String loadStream(InputStream stream) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        return reader.lines().collect(Collectors.joining("\n"));
-    }
-
-    private void loadWebpage(String contents) {
-        WebView mainview = (WebView) findViewById(R.id.backgroundWebview);
-        mainview.loadData(contents, "text/html", "UTF-8");
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -53,13 +43,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d("general", "activity started");
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -68,15 +51,5 @@ public class MainActivity extends AppCompatActivity {
         Log.d("general", loc.toString());
 
         setContentView(R.layout.activity_main);
-
-        WebView mainview = (WebView) findViewById(R.id.backgroundWebview);
-        WebSettings settings = mainview.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setGeolocationEnabled(true);
-
-        InputStream pagestream = getResources().openRawResource(R.raw.loginbackground);
-        String pagecontents = loadStream(pagestream);
-        loadWebpage(pagecontents);
-
     }
 }

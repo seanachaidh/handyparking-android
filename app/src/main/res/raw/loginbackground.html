@@ -23,16 +23,14 @@
         </style>
     </head>
     <body>
-        <h1 id="location">hey</h1>
         <div id="map"></div>
         <script>
             function loadPosition(pos) {
-                e.innerHTML = "loadposition called"
+                console.log("loadposition called");
                 map.setView({lon:pos.coords.longitude, lat: pos.coords.latitude}, 15);
-                var e = document.getElementById("location");
-                e.innerHTML = pos.coords.longitude.toString();
             }
             // initialize Leaflet
+            console.log("Starting leaflet");
             var map = L.map('map', {zoomControl: false}).setView({lon: 0, lat: 0}, 2);
             navigator.geolocation.getCurrentPosition(loadPosition);
 
