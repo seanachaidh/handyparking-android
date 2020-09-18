@@ -1,4 +1,4 @@
-package com.seanachaidh.handyparking;
+package com.seanachaidh.handyandroid;
 
 import android.content.Context;
 import android.text.Layout;
@@ -10,13 +10,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ScrollView;
-
 import androidx.appcompat.widget.LinearLayoutCompat;
 
 public class StartScreenScroll extends ScrollView {
 
     private class RegisterOnClick implements OnClickListener {
-
         @Override
         public void onClick(View view) {
             Log.d("clickbuttons", "Register has been clicked");
@@ -27,7 +25,7 @@ public class StartScreenScroll extends ScrollView {
             EditText password = (EditText) scroll.findViewById(R.id.register_password_text);
             CheckBox guide = (CheckBox) scroll.findViewById(R.id.register_guide_check);
 
-            
+
 
         }
     }

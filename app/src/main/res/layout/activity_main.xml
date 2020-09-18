@@ -30,12 +30,12 @@
         app:layout_constraintBottom_toTopOf="@+id/loginbutton"
         android:onClick="showRegister"/>
 
-    <com.seanachaidh.handyparking.MapBackgroundView
+    <com.seanachaidh.handyandroid.MapBackgroundView
         android:id="@+id/backgroundWebview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.seanachaidh.handyparking.StartScreenScroll
+    <com.seanachaidh.handyandroid.StartScreenScroll
         android:id="@+id/login_scroll"
         android:layout_width="297dp"
         android:layout_height="354dp"

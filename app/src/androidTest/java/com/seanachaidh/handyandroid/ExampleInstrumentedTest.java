@@ -1,4 +1,4 @@
-package com.seanachaidh.handyparking;
+package com.seanachaidh.handyandroid;
 
 import android.content.Context;
 

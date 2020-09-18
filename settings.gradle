@@ -1,2 +1,4 @@
+include ':handyparking'
 include ':app'
+
 rootProject.name = "HandyParking"
