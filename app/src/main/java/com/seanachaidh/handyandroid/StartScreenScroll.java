@@ -17,15 +17,6 @@ public class StartScreenScroll extends ScrollView {
     private class RegisterOnClick implements OnClickListener {
         @Override
         public void onClick(View view) {
-            Log.d("clickbuttons", "Register has been clicked");
-            LinearLayoutCompat scroll = (LinearLayoutCompat) view.getParent();
-
-            EditText name = (EditText) scroll.findViewById(R.id.register_name_text);
-            EditText email = (EditText) scroll.findViewById(R.id.register_email_text);
-            EditText password = (EditText) scroll.findViewById(R.id.register_password_text);
-            CheckBox guide = (CheckBox) scroll.findViewById(R.id.register_guide_check);
-
-
 
         }
     }
@@ -43,6 +34,8 @@ public class StartScreenScroll extends ScrollView {
 
     private Button register_confirmation_button;
     private Button login_confirmation_button;
+
+    private MainActivityClickListener clickListener;
 
 
     private Boolean use_login = false;
@@ -73,15 +66,16 @@ public class StartScreenScroll extends ScrollView {
     }
 
     private void createViews() {
+        this.clickListener = new MainActivityClickListener();
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.login_view = (LinearLayoutCompat) inflater.inflate(R.layout.login_layout, null);
         this.register_view = (LinearLayoutCompat) inflater.inflate(R.layout.register_layout, null);
 
         this.register_confirmation_button = this.register_view.findViewById(R.id.register_confirmation_button);
-        this.register_confirmation_button.setOnClickListener(new RegisterOnClick());
+        this.register_confirmation_button.setOnClickListener(this.clickListener);
 
         this.login_confirmation_button = this.login_view.findViewById(R.id.login_confirmation_button);
-        this.login_confirmation_button.setOnClickListener(new LoginOnClick());
+        this.login_confirmation_button.setOnClickListener(this.clickListener);
 
         //we beginnen met register
         this.addView(this.register_view);

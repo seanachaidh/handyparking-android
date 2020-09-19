@@ -11,6 +11,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -27,9 +28,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import sun.rmi.runtime.Log;
 
 
 enum RequestType {
@@ -76,19 +80,21 @@ public abstract class Resource<T> {
         String final_retval = null;
         if(toConvert != null) {
             for(Map.Entry<String,String> keyvals: toConvert.entrySet()){
+                String encodedValue = null;
+                try {
+                    encodedValue = URLEncoder.encode(keyvals.getValue(), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    encodedValue = "";
+                }
                 if(retval.equals("")){
-                    retval += keyvals.getKey() + "=" + keyvals.getValue();
+                    retval += keyvals.getKey() + "=" + encodedValue;
                 } else {
-                    retval += "&" + keyvals.getKey() + "=" + keyvals.getValue();
+                    retval += "&" + keyvals.getKey() + "=" + encodedValue;
                 }
             }            
         }
-        try {
-            final_retval = URLEncoder.encode(retval, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return final_retval;
+        return retval;
     }
 
     public CloseableHttpResponse performRequest(RequestType t, HashMap<String, String> params, String postbody){
@@ -100,6 +106,7 @@ public abstract class Resource<T> {
             switch (t) {
                 case GET:
                     request = new HttpGet(url);
+                    ((HttpGet) request).setEntity(ent);
                     break;
                 case POST:
                     request = new HttpPost(url);

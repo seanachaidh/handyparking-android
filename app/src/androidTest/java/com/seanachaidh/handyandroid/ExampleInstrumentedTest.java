@@ -5,8 +5,15 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.seanachaidh.handyparking.Resources.UserResource;
+
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
@@ -17,10 +24,30 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+    private CloseableHttpClient client;
+    @Before
+    public void setUp() {
+        client = HttpClients.createDefault();
+    }
     @Test
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.seanachaidh.handyparking", appContext.getPackageName());
     }
+
+    @Test
+    public void testPost() {
+        UserResource resource = new UserResource(this.client);
+        HashMap<String, String> postBody = new HashMap<String, String>();
+
+        postBody.put("name", "Jan");
+        postBody.put("email", "jan@jantje.com");
+        postBody.put("password", "12345");
+        postBody.put("guide", "1");
+
+        Boolean success = resource.post(null, postBody);
+        assertTrue(success);
+    }
+
 }
