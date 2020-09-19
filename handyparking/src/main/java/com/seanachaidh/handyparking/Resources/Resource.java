@@ -11,7 +11,6 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -29,11 +28,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import sun.rmi.runtime.Log;
 
 
 enum RequestType {
@@ -97,31 +95,59 @@ public abstract class Resource<T> {
         return retval;
     }
 
-    public CloseableHttpResponse performRequest(RequestType t, HashMap<String, String> params, String postbody){
-        CloseableHttpResponse resp = null;
+    private ClassicHttpRequest createRequest(RequestType t, HashMap<String, String> params, String postbody) {
         StringEntity ent = new StringEntity(postbody);
         ClassicHttpRequest request = null;
-        try {
-            String url = this.formatURL(params);
-            switch (t) {
-                case GET:
-                    request = new HttpGet(url);
-                    ((HttpGet) request).setEntity(ent);
-                    break;
-                case POST:
-                    request = new HttpPost(url);
-                    ((HttpPost) request).setEntity(ent);
-                    break;
-                case PUT:
-                    request = new HttpPut(url);
-                    ((HttpPut) request).setEntity(ent);
-                    break;
-                case DELETE:
-                    request = new HttpDelete(url);
-                    break;
-                default:
-                    break;
+
+        String url = this.formatURL(params);
+        switch (t) {
+            case GET:
+                request = new HttpGet(url);
+                ((HttpGet) request).setEntity(ent);
+                break;
+            case POST:
+                request = new HttpPost(url);
+                ((HttpPost) request).setEntity(ent);
+                break;
+            case PUT:
+                request = new HttpPut(url);
+                ((HttpPut) request).setEntity(ent);
+                break;
+            case DELETE:
+                request = new HttpDelete(url);
+                break;
+            default:
+                break;
+        }
+
+        return request;
+    }
+
+    public CompletableFuture<CloseableHttpResponse> performRequestAsync(RequestType t, HashMap<String, String> params, String postbody) {
+        CompletableFuture<CloseableHttpResponse> retval;
+        /*Vreemde code. Nodig om Resource te kunnen bereiken in supplyAsync*/
+        Resource<T> parent = this;
+
+        retval = CompletableFuture.supplyAsync(new Supplier<CloseableHttpResponse>() {
+            @Override
+            public CloseableHttpResponse get() {
+                ClassicHttpRequest request = createRequest(t, params, postbody);
+                CloseableHttpResponse resp = null;
+                try {
+                    resp = parent.client.execute(request);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return resp;
             }
+        });
+        return retval;
+    }
+
+    public CloseableHttpResponse performRequest(RequestType t, HashMap<String, String> params, String postbody){
+        CloseableHttpResponse resp = null;
+        ClassicHttpRequest request = createRequest(t, params, postbody);
+        try {
             resp = this.client.execute(request);
         } catch (Exception e) {
             e.printStackTrace();
