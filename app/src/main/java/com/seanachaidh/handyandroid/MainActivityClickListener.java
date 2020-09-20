@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
 
@@ -16,6 +17,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 public class MainActivityClickListener implements View.OnClickListener {
     private CloseableHttpClient client;
@@ -37,7 +40,7 @@ public class MainActivityClickListener implements View.OnClickListener {
         return sb.toString();
     }
 
-    private void registerClick(View view) {
+    private void registerClick(final View view) {
         Log.d("clickbuttons", "Register has been clicked");
         LinearLayoutCompat scroll = (LinearLayoutCompat) view.getParent();
 
@@ -56,8 +59,19 @@ public class MainActivityClickListener implements View.OnClickListener {
         String bool = guide.isChecked() ? "1" : "0";
         postParams.put("guide", bool);
 
-        userResource.post(null, postParams);
-
+        CompletableFuture<Boolean> retval = userResource.post(null, postParams);
+        retval.whenComplete(new BiConsumer<Boolean, Throwable>() {
+            @Override
+            public void accept(Boolean aBoolean, Throwable throwable) {
+                if(aBoolean) {
+                    Toast t = Toast.makeText(view.getContext(), "User gemaakt", Toast.LENGTH_LONG);
+                    t.show();
+                } else {
+                    Toast t = Toast.makeText(view.getContext(), "User niet gemaakt", Toast.LENGTH_LONG);
+                    t.show();
+                }
+            }
+        });
     }
 
     private void loginClick(View view) {

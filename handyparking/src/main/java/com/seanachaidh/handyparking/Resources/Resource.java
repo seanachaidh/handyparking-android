@@ -11,7 +11,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.w3c.dom.Document;
@@ -19,10 +19,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+import javax.activation.MimeType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -96,7 +97,10 @@ public abstract class Resource<T> {
     }
 
     private ClassicHttpRequest createRequest(RequestType t, HashMap<String, String> params, String postbody) {
-        StringEntity ent = new StringEntity(postbody);
+        /*
+        Het is belangrijk dat de charset utf-8 is
+         */
+        StringEntity ent = new StringEntity(postbody, ContentType.create("application/x-www-form-urlencoded", StandardCharsets.UTF_8));
         ClassicHttpRequest request = null;
 
         String url = this.formatURL(params);
@@ -122,37 +126,58 @@ public abstract class Resource<T> {
 
         return request;
     }
-
-    public CompletableFuture<CloseableHttpResponse> performRequestAsync(RequestType t, HashMap<String, String> params, String postbody) {
-        CompletableFuture<CloseableHttpResponse> retval;
-        /*Vreemde code. Nodig om Resource te kunnen bereiken in supplyAsync*/
+    public CompletableFuture<Boolean> performRequestBooleanAsync(RequestType t, HashMap<String, String> params, String postbody) {
+        CompletableFuture<Boolean> retval;
         Resource<T> parent = this;
 
-        retval = CompletableFuture.supplyAsync(new Supplier<CloseableHttpResponse>() {
+        retval = CompletableFuture.supplyAsync(new Supplier<Boolean>() {
             @Override
-            public CloseableHttpResponse get() {
+            public Boolean get() {
                 ClassicHttpRequest request = createRequest(t, params, postbody);
                 CloseableHttpResponse resp = null;
+                String responseBody = null;
+
                 try {
                     resp = parent.client.execute(request);
+                    responseBody = EntityUtils.toString(resp.getEntity());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return resp;
+
+                JsonObject parser = new JsonParser().parse(responseBody).getAsJsonObject();
+                Boolean r = parser.get("result").getAsBoolean();
+
+                return r;
+            }
+        });
+
+        return retval;
+    }
+    public CompletableFuture<T[]> performRequestAsync(RequestType t, HashMap<String, String> params, String postbody) {
+        CompletableFuture<T[]> retval;
+        /*Vreemde code. Nodig om Resource te kunnen bereiken in supplyAsync*/
+        Resource<T> parent = this;
+
+        retval = CompletableFuture.supplyAsync(new Supplier<T[]>() {
+            @Override
+            public T[] get() {
+                ClassicHttpRequest request = createRequest(t, params, postbody);
+                CloseableHttpResponse resp = null;
+                String responseBody = null;
+                try {
+                    resp = parent.client.execute(request);
+                    responseBody = EntityUtils.toString(resp.getEntity());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                GsonBuilder mybuilder = buildGSON();
+                T[] result = mybuilder.create().fromJson(responseBody, parent.klass);
+
+                return result;
             }
         });
         return retval;
-    }
-
-    public CloseableHttpResponse performRequest(RequestType t, HashMap<String, String> params, String postbody){
-        CloseableHttpResponse resp = null;
-        ClassicHttpRequest request = createRequest(t, params, postbody);
-        try {
-            resp = this.client.execute(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resp;
     }
 
     private void parseConfiguration() {
@@ -187,59 +212,24 @@ public abstract class Resource<T> {
         parseConfiguration();
     }
     
-    public T[] get(HashMap<String, String> params, HashMap<String, String> body) {
-        CloseableHttpResponse response = this.performRequest(RequestType.GET, params,  "");
-        String retval = null;
-        try {
-            retval = EntityUtils.toString(response.getEntity());
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-        GsonBuilder mybuilder = buildGSON();
-        T[] result = mybuilder.create().fromJson(retval, this.klass);
-        return result;
+    CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body) {
+        CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "");
+        return retval;
     }
-    public Boolean post(HashMap<String, String> params, HashMap<String, String> body) {
+    public CompletableFuture<Boolean> post(HashMap<String, String> params, HashMap<String, String> body) {
         
         String urlEncodedBody = createUrlEncodedString(body);
-        CloseableHttpResponse response = this.performRequest(RequestType.POST, params, urlEncodedBody);
-        String retval = null;
-        try {
-            retval = EntityUtils.toString(response.getEntity());
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-        JsonObject json = new JsonParser().parse(retval).getAsJsonObject();
-        return json.get("result").getAsBoolean();
+        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.POST, params, urlEncodedBody);
+        return retval;
     }
-    public Boolean put(HashMap<String, String> params, HashMap<String, String> body){
+    public CompletableFuture<Boolean> put(HashMap<String, String> params, HashMap<String, String> body){
         String urlEncodedBody = createUrlEncodedString(body);
-        CloseableHttpResponse response = this.performRequest(RequestType.PUT, params, urlEncodedBody);
-        String retval = null;
-        try {
-            retval = EntityUtils.toString(response.getEntity());
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-        JsonObject json = new JsonParser().parse(retval).getAsJsonObject();
-        return json.get("result").getAsBoolean();
+        CompletableFuture<Boolean> retval= this.performRequestBooleanAsync(RequestType.PUT, params, urlEncodedBody);
+        return retval;
     }
-    public Boolean delete(HashMap<String, String> params, HashMap<String, String> body){
+    public CompletableFuture<Boolean> delete(HashMap<String, String> params, HashMap<String, String> body){
         String urlEncodedBody = createUrlEncodedString(body);
-        CloseableHttpResponse response = this.performRequest(RequestType.DELETE, params, urlEncodedBody);
-        String retval = null;
-        try {
-            retval = EntityUtils.toString(response.getEntity());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        JsonObject json = new JsonParser().parse(retval).getAsJsonObject();
-        return json.get("result").getAsBoolean();    
+        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.DELETE, params, urlEncodedBody);
+        return retval;
     }
 }

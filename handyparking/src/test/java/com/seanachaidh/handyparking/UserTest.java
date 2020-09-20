@@ -18,6 +18,7 @@ public class UserTest extends TestCase {
         this.client = HttpClients.createDefault();
     }
 
+    /*
     @Test
     public void testGet(){
         UserResource resource = new UserResource(this.client);
@@ -25,7 +26,9 @@ public class UserTest extends TestCase {
         User first = result[0];
         assertEquals("Pieter", first.getName());
     }
+    */
 
+    /*
     @Test
     public void testPost() {
         UserResource resource = new UserResource(this.client);
@@ -39,4 +42,5 @@ public class UserTest extends TestCase {
         Boolean success = resource.post(null, postBody);
         assertTrue(success);
     }
+     */
 }

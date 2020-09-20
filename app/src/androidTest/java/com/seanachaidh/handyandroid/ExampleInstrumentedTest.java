@@ -35,7 +35,7 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.seanachaidh.handyparking", appContext.getPackageName());
     }
-
+/*
     @Test
     public void testPost() {
         UserResource resource = new UserResource(this.client);
@@ -49,5 +49,5 @@ public class ExampleInstrumentedTest {
         Boolean success = resource.post(null, postBody);
         assertTrue(success);
     }
-
+ */
 }
