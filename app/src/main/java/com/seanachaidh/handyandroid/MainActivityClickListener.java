@@ -1,5 +1,7 @@
 package com.seanachaidh.handyandroid;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -75,7 +77,12 @@ public class MainActivityClickListener implements View.OnClickListener {
     }
 
     private void loginClick(View view) {
-        Log.d("general", "Not yet implemented");
+        SharedPreferences prefs = view.getContext().getSharedPreferences(view.getContext().getString(R.string.preference_file),
+                Context.MODE_PRIVATE);
+        //TODO: maak hier de NULL token van
+        String token = prefs.getString(view.getContext().getString(R.string.token_key), "");
+        Log.d("general", "Current token: " + token);
+
     }
 
     public MainActivityClickListener() {

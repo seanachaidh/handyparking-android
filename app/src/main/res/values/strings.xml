@@ -2,4 +2,8 @@
     <string name="app_name">HandyParking</string>
     <string name="registerbutton_text">Register</string>
     <string name="loginbutton_text">Login</string>
+
+    <!-- Key value store keys -->
+    <string name="preference_file">com.seanachaidh.handyparking.prefs</string>
+    <string name="token_key">com.seanachaidh.handyparking.prefs.token</string>
 </resources>

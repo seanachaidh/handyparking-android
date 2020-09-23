@@ -95,13 +95,14 @@ public abstract class Resource<T> {
         }
         return retval;
     }
-
-    private ClassicHttpRequest createRequest(RequestType t, HashMap<String, String> params, String postbody) {
+    private ClassicHttpRequest createRequest(RequestType t, HashMap<String, String> params, String postbody, HashMap<String, String> headers) {
         /*
         Het is belangrijk dat de charset utf-8 is
          */
         StringEntity ent = new StringEntity(postbody, ContentType.create("application/x-www-form-urlencoded", StandardCharsets.UTF_8));
         ClassicHttpRequest request = null;
+
+
 
         String url = this.formatURL(params);
         switch (t) {
@@ -124,16 +125,23 @@ public abstract class Resource<T> {
                 break;
         }
 
+        //Setting the headers
+        if(headers != null) {
+            for(HashMap.Entry<String, String> e: headers.entrySet()) {
+                request.addHeader(e.getKey(), e.getValue());
+            }
+        }
+
         return request;
     }
-    public CompletableFuture<Boolean> performRequestBooleanAsync(RequestType t, HashMap<String, String> params, String postbody) {
+    public CompletableFuture<Boolean> performRequestBooleanAsync(RequestType t, HashMap<String, String> params, String postbody, HashMap<String,String> headers) {
         CompletableFuture<Boolean> retval;
         Resource<T> parent = this;
 
         retval = CompletableFuture.supplyAsync(new Supplier<Boolean>() {
             @Override
             public Boolean get() {
-                ClassicHttpRequest request = createRequest(t, params, postbody);
+                ClassicHttpRequest request = createRequest(t, params, postbody, headers);
                 CloseableHttpResponse resp = null;
                 String responseBody = null;
 
@@ -153,7 +161,7 @@ public abstract class Resource<T> {
 
         return retval;
     }
-    public CompletableFuture<T[]> performRequestAsync(RequestType t, HashMap<String, String> params, String postbody) {
+    public CompletableFuture<T[]> performRequestAsync(RequestType t, HashMap<String, String> params, String postbody, HashMap<String, String> headers) {
         CompletableFuture<T[]> retval;
         /*Vreemde code. Nodig om Resource te kunnen bereiken in supplyAsync*/
         Resource<T> parent = this;
@@ -161,7 +169,7 @@ public abstract class Resource<T> {
         retval = CompletableFuture.supplyAsync(new Supplier<T[]>() {
             @Override
             public T[] get() {
-                ClassicHttpRequest request = createRequest(t, params, postbody);
+                ClassicHttpRequest request = createRequest(t, params, postbody, headers);
                 CloseableHttpResponse resp = null;
                 String responseBody = null;
                 try {
@@ -212,24 +220,24 @@ public abstract class Resource<T> {
         parseConfiguration();
     }
     
-    CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body) {
-        CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "");
+    CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+        CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "", headers);
         return retval;
     }
-    public CompletableFuture<Boolean> post(HashMap<String, String> params, HashMap<String, String> body) {
+    public CompletableFuture<Boolean> post(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
         
         String urlEncodedBody = createUrlEncodedString(body);
-        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.POST, params, urlEncodedBody);
+        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.POST, params, urlEncodedBody, headers);
         return retval;
     }
-    public CompletableFuture<Boolean> put(HashMap<String, String> params, HashMap<String, String> body){
+    public CompletableFuture<Boolean> put(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers){
         String urlEncodedBody = createUrlEncodedString(body);
-        CompletableFuture<Boolean> retval= this.performRequestBooleanAsync(RequestType.PUT, params, urlEncodedBody);
+        CompletableFuture<Boolean> retval= this.performRequestBooleanAsync(RequestType.PUT, params, urlEncodedBody, headers);
         return retval;
     }
-    public CompletableFuture<Boolean> delete(HashMap<String, String> params, HashMap<String, String> body){
+    public CompletableFuture<Boolean> delete(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers){
         String urlEncodedBody = createUrlEncodedString(body);
-        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.DELETE, params, urlEncodedBody);
+        CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.DELETE, params, urlEncodedBody, headers);
         return retval;
     }
 }
