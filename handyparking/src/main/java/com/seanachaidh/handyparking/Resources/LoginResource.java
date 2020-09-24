@@ -8,6 +8,6 @@ public class LoginResource extends Resource<LoginResource.LoginResult> {
     }
 
     public static class LoginResult {
-        String token;
+        public String token;
     }
 }
