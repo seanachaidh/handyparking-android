@@ -220,7 +220,7 @@ public abstract class Resource<T> {
         parseConfiguration();
     }
     
-    CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+    public CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
         CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "", headers);
         return retval;
     }
