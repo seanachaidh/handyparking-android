@@ -1,6 +1,9 @@
 package com.seanachaidh.handyandroid;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +11,7 @@ import android.view.View;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.d("general", "activity started");
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -52,6 +57,21 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         this.start_screen_scroll = (StartScreenScroll) findViewById(R.id.login_scroll);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        //Check if the user has logged in or not
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        String token = prefs.getString(getString(R.string.token_key), "");
+
+        if(!token.equals("")) {
+            //Start the new activity
+            Intent intent = new Intent(this, AppActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void showLogin(View view) {
