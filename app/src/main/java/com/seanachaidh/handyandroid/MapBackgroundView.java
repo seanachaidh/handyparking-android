@@ -70,8 +70,8 @@ public class MapBackgroundView extends WebView {
     }
 
     private void loadWebpage(String contents) {
-        WebView mainview = (WebView) findViewById(R.id.backgroundWebview);
-        mainview.loadData(contents, "text/html", "UTF-8");
+        //WebView mainview = (WebView) findViewById(R.id.backgroundWebview);
+        //mainview.loadData(contents, "text/html", "UTF-8");
     }
 
 

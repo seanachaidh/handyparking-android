@@ -1,4 +1,5 @@
 package com.seanachaidh.handyandroid;
 
-public class Subscriber {
+public interface Subscriber {
+    void onUpdate(Object data);
 }
