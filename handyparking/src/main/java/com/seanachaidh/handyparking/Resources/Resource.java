@@ -30,7 +30,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-import javax.activation.MimeType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -44,6 +43,7 @@ enum RequestType {
 
 public abstract class Resource<T> {
     private final String restURL;
+    private final boolean mock;
     private String rooturl;
     private CloseableHttpClient client;
     private Class<T[]> klass;
@@ -124,7 +124,6 @@ public abstract class Resource<T> {
             default:
                 break;
         }
-
         //Setting the headers
         if(headers != null) {
             for(HashMap.Entry<String, String> e: headers.entrySet()) {
@@ -217,9 +216,19 @@ public abstract class Resource<T> {
         this.restURL = restURL;
         this.client = client;
         this.klass = klass;
+        this.mock = true;
         parseConfiguration();
     }
-    
+
+    public Resource(Class<T[]> klass, String restURL, CloseableHttpClient client, boolean mocking) {
+        this.restURL = restURL;
+        this.client = client;
+        this.klass = klass;
+        this.mock = mocking;
+
+        parseConfiguration();
+    }
+
     public CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
         CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "", headers);
         return retval;

@@ -2,5 +2,6 @@
     Dit is een STUB. Verander RootURL
 -->
 <configuration>
-    <rooturl>https://seanachaidh.be/handyparking</rooturl>
+    <rooturl>http://10.0.2.2:3000/handyparking</rooturl>
+
 </configuration>

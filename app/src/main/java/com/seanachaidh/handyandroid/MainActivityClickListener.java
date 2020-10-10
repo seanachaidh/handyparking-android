@@ -16,20 +16,16 @@ import com.seanachaidh.handyparking.Resources.UserResource;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.prefs.Preferences;
 
 public class MainActivityClickListener implements View.OnClickListener {
-    private CloseableHttpClient client;
     private UserResource userResource;
     private LoginResource loginResource;
+    private MainActivity activity;
 
     private String generateMD5(String s) {
         MessageDigest md5 = null;
@@ -40,28 +36,31 @@ public class MainActivityClickListener implements View.OnClickListener {
         }
         assert md5 != null;
         byte[] b = md5.digest(s.getBytes());
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for(byte i: b) {
             sb.append(String.format("%02x",i & 0xff));
         }
         return sb.toString();
     }
 
+
     private void registerClick(final View view) {
         Log.d("clickbuttons", "Register has been clicked");
-        LinearLayoutCompat scroll = (LinearLayoutCompat) view.getParent();
+        final LinearLayoutCompat scroll = (LinearLayoutCompat) view.getParent();
 
-        EditText name = (EditText) scroll.findViewById(R.id.register_name_text);
-        EditText email = (EditText) scroll.findViewById(R.id.register_email_text);
-        EditText password = (EditText) scroll.findViewById(R.id.register_password_text);
-        CheckBox guide = (CheckBox) scroll.findViewById(R.id.register_guide_check);
+        EditText name = scroll.findViewById(R.id.register_name_text);
+        EditText email = scroll.findViewById(R.id.register_email_text);
+        EditText password = scroll.findViewById(R.id.register_password_text);
+        CheckBox guide = scroll.findViewById(R.id.register_guide_check);
 
-        String md5Password = generateMD5(password.getText().toString());
+        final String passwordText = password.getText().toString();
+        String md5Password = generateMD5(passwordText);
 
-        HashMap<String, String> postParams = new HashMap<String, String>();
+        HashMap<String, String> postParams = new HashMap<>();
 
         postParams.put("name", name.getText().toString());
-        postParams.put("email", email.getText().toString());
+        final String emailText = email.getText().toString();
+        postParams.put("email", emailText);
         postParams.put("password", md5Password);
         String bool = guide.isChecked() ? "1" : "0";
         postParams.put("guide", bool);
@@ -71,8 +70,8 @@ public class MainActivityClickListener implements View.OnClickListener {
             @Override
             public void accept(Boolean aBoolean, Throwable throwable) {
                 if(aBoolean) {
-                    Toast t = Toast.makeText(view.getContext(), "User gemaakt", Toast.LENGTH_LONG);
-                    t.show();
+                    MainActivity activity = (MainActivity) view.getContext().getApplicationContext();
+                    performLogin(emailText, passwordText);
                 } else {
                     Toast t = Toast.makeText(view.getContext(), "User niet gemaakt", Toast.LENGTH_LONG);
                     t.show();
@@ -87,12 +86,10 @@ public class MainActivityClickListener implements View.OnClickListener {
 
         String toEncode = username + ":" + md5Password;
         Log.d("general", "Encoding username and password: " + toEncode);
-        String retval = Base64.encodeToString(toEncode.getBytes(), Base64.DEFAULT);
-        return retval;
+        return Base64.encodeToString(toEncode.getBytes(), Base64.DEFAULT);
     }
 
     private void loginClick(final View view) {
-        MainActivity activity = (MainActivity) view.getContext();
         final SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
         //TODO: maak hier de NULL token van
         String token = prefs.getString(view.getContext().getString(R.string.token_key), "");
@@ -101,34 +98,43 @@ public class MainActivityClickListener implements View.OnClickListener {
 
         //get a new token
         LinearLayoutCompat scroll = (LinearLayoutCompat) view.getParent();
-        EditText emailEdit = (EditText) scroll.findViewById(R.id.login_email);
-        EditText passwordEdit = (EditText) scroll.findViewById(R.id.login_password);
+        EditText emailEdit = scroll.findViewById(R.id.login_email);
+        EditText passwordEdit = scroll.findViewById(R.id.login_password);
 
-        HashMap<String, String> header = new HashMap<String, String>();
-        String base64Credentials = convertUsernameAndPassword(emailEdit.getText().toString(), passwordEdit.getText().toString());
-        header.put("Authorization", "Basic " + base64Credentials); // BASIC NIET VERGETEN!
+        String username = emailEdit.getText().toString();
+        String password = passwordEdit.getText().toString();
 
-       CompletableFuture<LoginResource.LoginResult[]> future = this.loginResource.get(null, null, header);
-       future.whenComplete(new BiConsumer<LoginResource.LoginResult[], Throwable>() {
-           @Override
-           public void accept(LoginResource.LoginResult[] loginResults, Throwable throwable) {
-               LoginResource.LoginResult first = loginResults[0];
-               String token = first.token;
-               SharedPreferences.Editor prefEditor = prefs.edit();
-               prefEditor.putString(view.getContext().getString(R.string.token_key), token);
-               prefEditor.commit();
-
-               Log.d("general", "new token: " + token);
-               Toast t = Toast.makeText(view.getContext(), "Token: " + token, Toast.LENGTH_LONG);
-               t.show();
-           }
-       });
+        performLogin(username, password);
     }
 
-    public MainActivityClickListener() {
-        this.client = ClientSingleton.getInstance().getClient();
-        this.userResource = new UserResource(this.client);
-        this.loginResource = new LoginResource(this.client);
+    private void performLogin(String username, String password) {
+        String base64Credentials = convertUsernameAndPassword(username, password);
+        HashMap<String, String> header = new HashMap<>();
+        header.put("Authorization", "basic " + base64Credentials); // BASIC NIET VERGETEN!
+
+        CompletableFuture<LoginResource.LoginResult[]> future = this.loginResource.get(null, null, header);
+        future.whenComplete(new BiConsumer<LoginResource.LoginResult[], Throwable>() {
+            @Override
+            public void accept(LoginResource.LoginResult[] loginResults, Throwable throwable) {
+                LoginResource.LoginResult first = loginResults[0];
+                String token = first.token;
+                SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor prefEditor = prefs.edit();
+                prefEditor.putString(activity.getString(R.string.token_key), token);
+                prefEditor.apply();
+
+                Log.d("general", "new token: " + token);
+
+                activity.startAppActivity(token);
+            }
+        });
+    }
+
+    public MainActivityClickListener(MainActivity parentActivity) {
+        CloseableHttpClient client = ClientSingleton.getInstance().getClient();
+        this.userResource = new UserResource(client);
+        this.loginResource = new LoginResource(client);
+        this.activity = parentActivity;
         Log.d("general", "Resource created: " + this.userResource.getFullURL());
     }
 

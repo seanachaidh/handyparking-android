@@ -1,30 +1,25 @@
 package com.seanachaidh.handyandroid;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.GnssStatus;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.util.LocationUtils;
 import org.osmdroid.views.MapView;
 
 import java.util.ArrayList;
@@ -116,7 +111,42 @@ public class MainActivity extends AppCompatActivity {
         //Check if the user has logged in or not
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
         String token = prefs.getString(getString(R.string.token_key), "");
+        if(!token.equals("")) {
+            startAppActivity(token);
+        }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        /*
+         * For debugging purposes logout is done in both cases
+         */
+        if(requestCode == 1) {
+            assert data != null;
+            boolean logoutResult = data.getBooleanExtra("logout", false);
+            if(logoutResult){
+                logout();
+                Log.d("debug", "logout succeeded");
+
+            } else {
+                logout();
+                Log.d("debug", "Logout not succeeded");
+            }
+        }
+    }
+
+    private void logout() {
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(this.getString(R.string.token_key), "");
+        editor.apply();
+    }
+
+    public void startAppActivity(String token) {
+        Intent intent = new Intent(this, AppActivity.class);
+        intent.putExtra("token", token);
+        startActivityForResult(intent, 1);
     }
 
     public void showLogin(View view) {

@@ -1,14 +1,11 @@
 package com.seanachaidh.handyandroid;
 
 import android.content.Context;
-import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ScrollView;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
@@ -66,7 +63,7 @@ public class StartScreenScroll extends ScrollView {
     }
 
     private void createViews() {
-        this.clickListener = new MainActivityClickListener();
+        this.clickListener = new MainActivityClickListener((MainActivity) this.getContext());
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.login_view = (LinearLayoutCompat) inflater.inflate(R.layout.login_layout, null);
         this.register_view = (LinearLayoutCompat) inflater.inflate(R.layout.register_layout, null);
