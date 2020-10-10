@@ -1,4 +1,4 @@
-# HANDYPARKING
+# HANDYPARKING ANDROID CLIENT
 ## Overview
 Dit is een use case voor een app die mensen met een beperking moet helpen bij het vinden van een parkeerplaats in binnen een door hen geselecteerd gebied. De app zal in staat zijn de hoeveelheid open parkeerplaatsen weer te geven binnen het geselecteerde gebied. Een gebruiker zal een van de open parkeerplaatsen specifiek kunnen aanduiden en de app zal hen daarna gebruiker daarna voorzien van een route naar de door hen geselecteerde parkeerplaats. De gebruiker zal ook in staat zijn om de app zelf een parkeerplaats binnen het geselecteerde gebied te laten kiezen, waarna de app de gebruiker de weg wijst naar de dichtstbijzijnde open parkeerplaats.
 
