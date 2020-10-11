@@ -3,6 +3,7 @@ package com.seanachaidh.handyparking.Resources;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +49,8 @@ public abstract class Resource<T> {
     private String rooturl;
     private CloseableHttpClient client;
     private Class<T[]> klass;
+
+    private ArrayList<T> mockDB;
     
     private GsonBuilder buildGSON() {
         GsonBuilder builder = new GsonBuilder();
@@ -95,6 +99,7 @@ public abstract class Resource<T> {
         }
         return retval;
     }
+
     private ClassicHttpRequest createRequest(RequestType t, HashMap<String, String> params, String postbody, HashMap<String, String> headers) {
         /*
         Het is belangrijk dat de charset utf-8 is
@@ -216,7 +221,7 @@ public abstract class Resource<T> {
         this.restURL = restURL;
         this.client = client;
         this.klass = klass;
-        this.mock = true;
+        this.mock = false;
         parseConfiguration();
     }
 
@@ -228,6 +233,7 @@ public abstract class Resource<T> {
 
         parseConfiguration();
     }
+
 
     public CompletableFuture<T[]> get(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
         CompletableFuture<T[]> retval = this.performRequestAsync(RequestType.GET, params,  "", headers);
@@ -249,4 +255,21 @@ public abstract class Resource<T> {
         CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.DELETE, params, urlEncodedBody, headers);
         return retval;
     }
+/*
+    private CompletableFuture<T[]> performGetMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+
+    }
+
+    private CompletableFuture<Boolean> performPostMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+
+    }
+
+    private CompletableFuture<Boolean> performPutMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+
+    }
+
+    private CompletableFuture<Boolean> performDeleteMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
+
+    }
+*/
 }
