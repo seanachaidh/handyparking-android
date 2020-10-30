@@ -67,13 +67,17 @@ public class LoginLogoutTest {
     @AfterClass
     public void tearDownClass() {
         RevertResource revert = new RevertResource(ClientSingleton.getInstance().getClient());
-        CompletableFuture<Boolean> future = revert.post(null, null, null);
+        final CompletableFuture<Boolean> future = revert.post(null, null, null);
         future.whenComplete(new BiConsumer<Boolean, Throwable>() {
             @Override
             public void accept(Boolean aBoolean, Throwable throwable) {
-
             }
-        })
+        });
+        try {
+            future.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
