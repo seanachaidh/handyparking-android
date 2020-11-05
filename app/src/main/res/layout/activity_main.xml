@@ -30,7 +30,7 @@
         app:layout_constraintBottom_toTopOf="@+id/login_button"
         android:onClick="showRegister"/>
 
-    <com.seanachaidh.handyandroid.HandyMapView
+    <com.seanachaidh.handyandroid.LoginMapView
         android:id="@+id/backgroundMap"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

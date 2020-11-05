@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.util.AttributeSet;
 
@@ -29,45 +30,42 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 
-public class MarkerMapView extends MapView implements Subscriber {
-    private boolean hasCentered = false;
+public class MarkerMapView extends MapView {
 
+    private void initMarkerMap() {
+        loadMarkersSlow();
+        this.getController().setZoom(LoginMapView.ZOOM_LEVEL);
+    }
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs) {
         super(context, tileProvider, tileRequestCompleteHandler, attrs);
         //TODO: Extraheren naar een aparte methode
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs, boolean hardwareAccelerated) {
         super(context, tileProvider, tileRequestCompleteHandler, attrs, hardwareAccelerated);
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     public MarkerMapView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     public MarkerMapView(Context context) {
         super(context);
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     public MarkerMapView(Context context, MapTileProviderBase aTileProvider) {
         super(context, aTileProvider);
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     public MarkerMapView(Context context, MapTileProviderBase aTileProvider, Handler tileRequestCompleteHandler) {
         super(context, aTileProvider, tileRequestCompleteHandler);
-        loadMarkersSlow();
-        this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
+        initMarkerMap();
     }
 
     private void loadMarkers() {
@@ -127,17 +125,4 @@ public class MarkerMapView extends MapView implements Subscriber {
         this.getOverlays().add(m);
     }
 
-    @Override
-    public void onUpdate(Object data) {
-        //TODO: Dit kan beter
-        if(!hasCentered) {
-            this.hasCentered = true;
-            AppCompatActivity context = (AppCompatActivity) data;
-            SharedPreferences prefs = context.getPreferences(Context.MODE_PRIVATE);
-            float currentLong = prefs.getFloat(context.getString(R.string.location_longtitude_key), 0.0f);
-            float currentLat = prefs.getFloat(context.getString(R.string.location_latitude_key), 0.0f);
-
-            getController().setCenter(new GeoPoint(currentLat, currentLong));
-        }
-    }
 }

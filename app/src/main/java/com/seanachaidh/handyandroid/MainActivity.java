@@ -5,38 +5,36 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     public static final int REQUEST_CODE = 1;
-    public static final String[] permissons = {
+    public static final String[] PERMISSONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
     };
-    private ScrollView login_view;
-    private ScrollView register_view;
     private StartScreenScroll start_screen_scroll;
-    private MapView map;
-    private IMapController mapController;
 
 
-    private LocationManager locationManager;
+    public MainActivity() {
+    }
 
     private void showScrollView() {
         if (this.start_screen_scroll.getVisibility() == View.INVISIBLE) {
@@ -44,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkPermissions(String[] permissions) {
-        ArrayList<String> toRequest = new ArrayList<String>();
-        for (String p : permissions) {
+    private void checkPermissions() {
+        ArrayList<String> toRequest = new ArrayList<>();
+        for (String p : MainActivity.PERMISSONS) {
             if (this.checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
                 //we need to ask
                 toRequest.add(p);
@@ -76,31 +74,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
         Log.d("general", "activity started");
 
-        checkPermissions(permissons);
-
-        GPSLocationListener gpsLocationListener = new GPSLocationListener(this);
+        checkPermissions();
 
         if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    1000, 1, gpsLocationListener);
+                    1000, 1, this);
         }
 
 
         Log.d("general", "loading extra views");
 
         setContentView(R.layout.activity_main);
-        this.start_screen_scroll = (StartScreenScroll) findViewById(R.id.login_scroll);
-        this.map = (HandyMapView) findViewById(R.id.backgroundMap);
-        this.map.setTileSource(TileSourceFactory.MAPNIK);
-        gpsLocationListener.addSubscriber((Subscriber) this.map);
-
+        this.start_screen_scroll = findViewById(R.id.login_scroll);
+        MapView map = (LoginMapView) findViewById(R.id.backgroundMap);
+        map.setTileSource(TileSourceFactory.MAPNIK);
     }
 
     @Override
@@ -159,4 +153,24 @@ public class MainActivity extends AppCompatActivity {
         this.start_screen_scroll.useRegister();
     }
 
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        LoginMapView v = findViewById(R.id.backgroundMap);
+        v.getController().setCenter(new GeoPoint(location.getLatitude(), location.getLongitude()));
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(@NonNull String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+
+    }
 }
