@@ -6,7 +6,7 @@ public class ParkingSpot {
     @SerializedName("idParkingSpots")
     private int id;
     private boolean occupied;
-    private Coordinate c;
+    private Coordinate coordinate;
 
     public int getId() {
         return id;
@@ -20,17 +20,17 @@ public class ParkingSpot {
         this.occupied = occupied;
     }
 
-    public Coordinate getC() {
-        return c;
+    public Coordinate getCoordinate() {
+        return coordinate;
     }
 
-    public void setC(Coordinate c) {
-        this.c = c;
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
     }
 
-    public ParkingSpot(boolean occupied, Coordinate c) {
+    public ParkingSpot(boolean occupied, Coordinate coordinate) {
         this.occupied = occupied;
-        this.c = c;
+        this.coordinate = coordinate;
     }
 
     @Override

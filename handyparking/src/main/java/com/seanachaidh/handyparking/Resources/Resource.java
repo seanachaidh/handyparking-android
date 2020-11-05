@@ -3,7 +3,7 @@ package com.seanachaidh.handyparking.Resources;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.seanachaidh.handyparking.Coordinate;
 
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,16 +44,15 @@ enum RequestType {
 
 public abstract class Resource<T> {
     private final String restURL;
-    private final boolean mock;
     private String rooturl;
     private CloseableHttpClient client;
     private Class<T[]> klass;
 
-    private ArrayList<T> mockDB;
     
     private GsonBuilder buildGSON() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(UUID.class, new UUIDJson());
+        builder.registerTypeAdapter(Coordinate.class, new CoordinateJson());
         return builder;
     }
 
@@ -221,16 +219,6 @@ public abstract class Resource<T> {
         this.restURL = restURL;
         this.client = client;
         this.klass = klass;
-        this.mock = false;
-        parseConfiguration();
-    }
-
-    public Resource(Class<T[]> klass, String restURL, CloseableHttpClient client, boolean mocking) {
-        this.restURL = restURL;
-        this.client = client;
-        this.klass = klass;
-        this.mock = mocking;
-
         parseConfiguration();
     }
 
@@ -255,21 +243,4 @@ public abstract class Resource<T> {
         CompletableFuture<Boolean> retval = this.performRequestBooleanAsync(RequestType.DELETE, params, urlEncodedBody, headers);
         return retval;
     }
-/*
-    private CompletableFuture<T[]> performGetMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
-
-    }
-
-    private CompletableFuture<Boolean> performPostMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
-
-    }
-
-    private CompletableFuture<Boolean> performPutMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
-
-    }
-
-    private CompletableFuture<Boolean> performDeleteMock(HashMap<String, String> params, HashMap<String, String> body, HashMap<String, String> headers) {
-
-    }
-*/
 }
