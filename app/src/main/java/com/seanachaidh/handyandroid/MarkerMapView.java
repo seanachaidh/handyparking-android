@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.seanachaidh.handyparking.Coordinate;
 import com.seanachaidh.handyparking.ParkingSpot;
 import com.seanachaidh.handyparking.Resources.ParkingspotResource;
 
@@ -35,37 +36,37 @@ public class MarkerMapView extends MapView implements Subscriber {
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs) {
         super(context, tileProvider, tileRequestCompleteHandler, attrs);
         //TODO: Extraheren naar een aparte methode
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs, boolean hardwareAccelerated) {
         super(context, tileProvider, tileRequestCompleteHandler, attrs, hardwareAccelerated);
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
     public MarkerMapView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
     public MarkerMapView(Context context) {
         super(context);
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
     public MarkerMapView(Context context, MapTileProviderBase aTileProvider) {
         super(context, aTileProvider);
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
     public MarkerMapView(Context context, MapTileProviderBase aTileProvider, Handler tileRequestCompleteHandler) {
         super(context, aTileProvider, tileRequestCompleteHandler);
-        loadMarkers();
+        loadMarkersSlow();
         this.getController().setZoom(HandyMapView.ZOOM_LEVEL);
     }
 
@@ -79,7 +80,7 @@ public class MarkerMapView extends MapView implements Subscriber {
                 List<IGeoPoint> points = new ArrayList<>();
 
                 for(ParkingSpot parkingSpot: parkingSpots) {
-                    points.add(new LabelledGeoPoint(parkingSpot.getCoordinate().getY(), parkingSpot.getCoordinate().getX(), "Point"));
+                    points.add(new LabelledGeoPoint(parkingSpot.getCoordinate().getLatitude(), parkingSpot.getCoordinate().getLongtitude(), "Point"));
 
                 }
 
@@ -97,7 +98,20 @@ public class MarkerMapView extends MapView implements Subscriber {
                 parent.getOverlays().add(overlay);
             }
         });
+    }
 
+    public void loadMarkersSlow() {
+        ParkingspotResource parkingspotResource = new ParkingspotResource(ClientSingleton.getInstance().getClient());
+        final MarkerMapView parent = this;
+        CompletableFuture<ParkingSpot[]> future = parkingspotResource.get(null, null, null);
+        future.whenComplete(new BiConsumer<ParkingSpot[], Throwable>() {
+            @Override
+            public void accept(ParkingSpot[] parkingSpots, Throwable throwable) {
+                for(ParkingSpot p: parkingSpots) {
+                    parent.addMarker(p.getCoordinate().getLatitude(), p.getCoordinate().getLongtitude());
+                }
+            }
+        });
     }
 
     /**

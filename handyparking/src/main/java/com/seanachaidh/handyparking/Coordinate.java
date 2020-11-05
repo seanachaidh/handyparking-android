@@ -3,7 +3,7 @@ package com.seanachaidh.handyparking;
 public class Coordinate {
     private double x, y;
 
-    public double getX() {
+    public double getLatitude() {
         return x;
     }
 
@@ -11,7 +11,7 @@ public class Coordinate {
         this.x = x;
     }
 
-    public double getY() {
+    public double getLongtitude() {
         return y;
     }
 
