@@ -1,13 +1,16 @@
 package com.seanachaidh.handyandroid;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,7 +39,7 @@ public class AppActivity extends AppCompatActivity implements LocationListener {
 
     private void checkPermissions() {
         ArrayList<String> toRequest = new ArrayList<>();
-        for (String p : MainActivity.PERMISSONS) {
+        for (String p : AppActivity.PERMISSONS) {
             if (this.checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
                 //we need to ask
                 toRequest.add(p);
@@ -87,8 +90,10 @@ public class AppActivity extends AppCompatActivity implements LocationListener {
             result.whenComplete(new BiConsumer<Boolean, Throwable>() {
                 @Override
                 public void accept(Boolean aBoolean, Throwable throwable) {
-                    ctx.getIntent().putExtra("token", true);
-                    finishActivity(1);
+                    Intent intent = new Intent();
+                    intent.putExtra("logout", aBoolean);
+                    ctx.setResult(1, intent);
+                    ctx.finish();
                 }
             });
         }

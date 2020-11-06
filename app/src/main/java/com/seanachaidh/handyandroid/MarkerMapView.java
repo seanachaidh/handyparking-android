@@ -35,6 +35,7 @@ public class MarkerMapView extends MapView {
     private void initMarkerMap() {
         loadMarkersSlow();
         this.getController().setZoom(LoginMapView.ZOOM_LEVEL);
+        this.
     }
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs) {
