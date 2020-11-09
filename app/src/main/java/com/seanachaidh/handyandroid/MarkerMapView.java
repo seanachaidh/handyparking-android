@@ -7,6 +7,9 @@ import android.graphics.Paint;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,6 +21,7 @@ import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint;
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay;
@@ -30,12 +34,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 
-public class MarkerMapView extends MapView {
-
+public class MarkerMapView extends MapView implements GestureDetector.OnGestureListener {
+    private GestureDetector gestureDetector;
     private void initMarkerMap() {
         loadMarkersSlow();
         this.getController().setZoom(LoginMapView.ZOOM_LEVEL);
-        this.
+        gestureDetector = new GestureDetector(this.getContext(), this);
     }
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs) {
@@ -126,4 +130,44 @@ public class MarkerMapView extends MapView {
         this.getOverlays().add(m);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        super.onTouchEvent(event);
+        return gestureDetector.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        Log.d("debug", "long press caught");
+        int x = (int) e.getX();
+        int y = (int) e.getY();
+        Projection projection = this.getProjection();
+        IGeoPoint clickedLocation = projection.fromPixels(x, y);
+        Log.d("debug", "clicked on: " + String.valueOf(clickedLocation.getLatitude()) + ";" + String.valueOf(clickedLocation.getLongitude()));
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
 }
