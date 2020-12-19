@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.seanachaidh.handyparking.Coordinate;
+import com.seanachaidh.handyparking.HandyConfiguration;
 
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -15,12 +16,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -30,9 +26,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 
 enum RequestType {
@@ -111,15 +104,15 @@ public abstract class Resource<T> {
         switch (t) {
             case GET:
                 request = new HttpGet(url);
-                ((HttpGet) request).setEntity(ent);
+                request.setEntity(ent);
                 break;
             case POST:
                 request = new HttpPost(url);
-                ((HttpPost) request).setEntity(ent);
+                request.setEntity(ent);
                 break;
             case PUT:
                 request = new HttpPut(url);
-                ((HttpPut) request).setEntity(ent);
+                request.setEntity(ent);
                 break;
             case DELETE:
                 request = new HttpDelete(url);
@@ -190,36 +183,15 @@ public abstract class Resource<T> {
         return retval;
     }
 
-    private void parseConfiguration() {
-        InputStream configurationStream = getClass().getClassLoader().getResourceAsStream("configuration.xml");
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        String rooturl = "";
-
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(configurationStream);
-            
-            Element root = doc.getDocumentElement();
-            NodeList nlist = root.getElementsByTagName("rooturl");
-            Node rooturlnode = nlist.item(0);
-            rooturl = rooturlnode.getTextContent();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            this.rooturl = rooturl;
-        }
-    }
-
     public String getFullURL(){
-        return this.rooturl + this.restURL;
+        String url = HandyConfiguration.getInstance().getRooturl();
+        return  url + this.restURL;
     }
 
     public Resource(Class<T[]> klass, String restURL, CloseableHttpClient client) {
         this.restURL = restURL;
         this.client = client;
         this.klass = klass;
-        parseConfiguration();
     }
 
 

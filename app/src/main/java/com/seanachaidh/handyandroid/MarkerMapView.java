@@ -1,9 +1,12 @@
 package com.seanachaidh.handyandroid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -12,6 +15,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.seanachaidh.handyparking.Coordinate;
 import com.seanachaidh.handyparking.ParkingSpot;
@@ -23,6 +27,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint;
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay;
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions;
@@ -123,11 +128,31 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
      * @param longtitude the longtitude of the marker
      * @param latitude the latitude of the marker
      */
-    void addMarker(double latitude, double longtitude) {
+    void addMarker(final double latitude, final double longtitude) {
+        AppCompatActivity parentContext = (AppCompatActivity) this.getContext();
+        MarkerInfoWindow infoWindow = new MarkerInfoWindow(R.layout.marker_layout, this);
+
         Marker m = new Marker(this);
+
+        //Drawable ballon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_tekstballon, null);
+
+        //m.setImage(ballon);
+        //m.setInfoWindow(infoWindow);
         m.setPosition(new GeoPoint(latitude, longtitude));
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
+        //m.setTitle("Hallo wereld");
+        //m.setSubDescription("dit is een test");
         this.getOverlays().add(m);
+
+        m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                Log.d("debug", String.format("Location clicked %f;%f", latitude, longtitude));
+                Intent intent = new Intent(parentContext, MarkerInfoActivity.class);
+                parentContext.startActivity(intent);
+                return false;
+            }
+        });
     }
 
     @Override

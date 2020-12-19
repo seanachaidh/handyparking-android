@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/marker_info_image"
+        android:layout_width="362dp"
+        android:layout_height="198dp"
+        android:layout_marginTop="40dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/marker_info_latitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="latitude"
+            android:layout_weight="1"/>
+        <!--
+        <view
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+         -->
+        <TextView
+            android:id="@+id/marker_info_longtitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="longtitide"
+            android:textAlignment="viewEnd"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:checked="true"
+        android:showText="false"
+        android:splitTrack="false"
+        android:text="Bezet"
+        tools:checked="false" />
+
+    <RatingBar
+        android:id="@+id/marker_info_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp" />
+
+</LinearLayout>
