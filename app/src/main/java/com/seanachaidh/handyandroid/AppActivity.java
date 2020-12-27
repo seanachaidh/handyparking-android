@@ -25,7 +25,6 @@ import org.osmdroid.views.MapView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 public class AppActivity extends AppCompatActivity implements LocationListener {
 
@@ -85,14 +84,11 @@ public class AppActivity extends AppCompatActivity implements LocationListener {
 
             headers.put("Authorization", "bearer " + token);
             CompletableFuture<Boolean> result =  resource.post(null, null, headers);
-            result.whenComplete(new BiConsumer<Boolean, Throwable>() {
-                @Override
-                public void accept(Boolean aBoolean, Throwable throwable) {
-                    Intent intent = new Intent();
-                    intent.putExtra("logout", aBoolean);
-                    ctx.setResult(1, intent);
-                    ctx.finish();
-                }
+            result.whenComplete((aBoolean, throwable) -> {
+                Intent intent = new Intent();
+                intent.putExtra("logout", aBoolean);
+                ctx.setResult(1, intent);
+                ctx.finish();
             });
         }
     }

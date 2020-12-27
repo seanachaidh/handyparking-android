@@ -49,7 +49,6 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
 
     public MarkerMapView(Context context, MapTileProviderBase tileProvider, Handler tileRequestCompleteHandler, AttributeSet attrs) {
         super(context, tileProvider, tileRequestCompleteHandler, attrs);
-        //TODO: Extraheren naar een aparte methode
         initMarkerMap();
     }
 
@@ -82,29 +81,26 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
         ParkingspotResource parkingspotResource = new ParkingspotResource(ClientSingleton.getInstance().getClient());
         final MarkerMapView parent = this;
         CompletableFuture<ParkingSpot[]> future = parkingspotResource.get(null, null, null);
-        future.whenComplete(new BiConsumer<ParkingSpot[], Throwable>() {
-            @Override
-            public void accept(ParkingSpot[] parkingSpots, Throwable throwable) {
-                List<IGeoPoint> points = new ArrayList<>();
+        future.whenComplete((parkingSpots, throwable) -> {
+            List<IGeoPoint> points = new ArrayList<>();
 
-                for(ParkingSpot parkingSpot: parkingSpots) {
-                    points.add(new LabelledGeoPoint(parkingSpot.getCoordinate().getLatitude(), parkingSpot.getCoordinate().getLongtitude(), "Point"));
+            for(ParkingSpot parkingSpot: parkingSpots) {
+                points.add(new LabelledGeoPoint(parkingSpot.getCoordinate().getLatitude(), parkingSpot.getCoordinate().getLongtitude(), "Point"));
 
-                }
-
-                Paint textStyle = new Paint();
-                textStyle.setStyle(Paint.Style.FILL);
-                textStyle.setColor(Color.parseColor("#0000ff"));
-                textStyle.setTextAlign(Paint.Align.CENTER);
-                textStyle.setTextSize(24);
-
-                SimplePointTheme pt = new SimplePointTheme(points, true);
-                SimpleFastPointOverlayOptions opts = SimpleFastPointOverlayOptions.getDefaultStyle()
-                        .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-                        .setIsClickable(true).setCellSize(15).setTextStyle(textStyle).setRadius(7);
-                final SimpleFastPointOverlay overlay = new SimpleFastPointOverlay(pt, opts);
-                parent.getOverlays().add(overlay);
             }
+
+            Paint textStyle = new Paint();
+            textStyle.setStyle(Paint.Style.FILL);
+            textStyle.setColor(Color.parseColor("#0000ff"));
+            textStyle.setTextAlign(Paint.Align.CENTER);
+            textStyle.setTextSize(24);
+
+            SimplePointTheme pt = new SimplePointTheme(points, true);
+            SimpleFastPointOverlayOptions opts = SimpleFastPointOverlayOptions.getDefaultStyle()
+                    .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
+                    .setIsClickable(true).setCellSize(15).setTextStyle(textStyle).setRadius(7);
+            final SimpleFastPointOverlay overlay = new SimpleFastPointOverlay(pt, opts);
+            parent.getOverlays().add(overlay);
         });
     }
 
@@ -112,46 +108,34 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
         ParkingspotResource parkingspotResource = new ParkingspotResource(ClientSingleton.getInstance().getClient());
         final MarkerMapView parent = this;
         CompletableFuture<ParkingSpot[]> future = parkingspotResource.get(null, null, null);
-        future.whenComplete(new BiConsumer<ParkingSpot[], Throwable>() {
-            @Override
-            public void accept(ParkingSpot[] parkingSpots, Throwable throwable) {
-                for(ParkingSpot p: parkingSpots) {
-                    parent.addMarker(p.getCoordinate().getLatitude(), p.getCoordinate().getLongtitude());
-                }
+        future.whenComplete((parkingSpots, throwable) -> {
+            for(ParkingSpot p: parkingSpots) {
+                parent.addMarker(p.getId(), p.getCoordinate().getLatitude(), p.getCoordinate().getLongtitude());
             }
         });
     }
 
     /**
      * Adds a new marker to the map
-     * TODO: Test this
+     * @param id Id of the makerker
      * @param longtitude the longtitude of the marker
      * @param latitude the latitude of the marker
      */
-    void addMarker(final double latitude, final double longtitude) {
+    void addMarker(final int id, final double latitude, final double longtitude) {
         AppCompatActivity parentContext = (AppCompatActivity) this.getContext();
         MarkerInfoWindow infoWindow = new MarkerInfoWindow(R.layout.marker_layout, this);
 
         Marker m = new Marker(this);
-
-        //Drawable ballon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_tekstballon, null);
-
-        //m.setImage(ballon);
-        //m.setInfoWindow(infoWindow);
         m.setPosition(new GeoPoint(latitude, longtitude));
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_TOP);
-        //m.setTitle("Hallo wereld");
-        //m.setSubDescription("dit is een test");
         this.getOverlays().add(m);
 
-        m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {
-                Log.d("debug", String.format("Location clicked %f;%f", latitude, longtitude));
-                Intent intent = new Intent(parentContext, MarkerInfoActivity.class);
-                parentContext.startActivity(intent);
-                return false;
-            }
+        m.setOnMarkerClickListener((marker, mapView) -> {
+            Log.d(this.getContext().getString(R.string.LOGTAG), String.format("Location clicked %f;%f", latitude, longtitude));
+            Intent intent = new Intent(parentContext, MarkerInfoActivity.class);
+            intent.putExtra(this.getContext().getApplicationContext().getString(R.string.INFO_VIEW_PARKINGID), id);
+            parentContext.startActivity(intent);
+            return false;
         });
     }
 
@@ -183,12 +167,12 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
 
     @Override
     public void onLongPress(MotionEvent e) {
-        Log.d("debug", "long press caught");
+        Log.d(this.getContext().getString(R.string.LOGTAG), "long press caught");
         int x = (int) e.getX();
         int y = (int) e.getY();
         Projection projection = this.getProjection();
         IGeoPoint clickedLocation = projection.fromPixels(x, y);
-        Log.d("debug", "clicked on: " + String.valueOf(clickedLocation.getLatitude()) + ";" + String.valueOf(clickedLocation.getLongitude()));
+        Log.d(this.getContext().getString(R.string.LOGTAG), "clicked on: " + clickedLocation.getLatitude() + ";" + clickedLocation.getLongitude());
     }
 
     @Override
