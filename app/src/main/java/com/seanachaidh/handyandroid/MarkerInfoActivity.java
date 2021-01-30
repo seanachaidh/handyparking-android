@@ -31,7 +31,10 @@ public class MarkerInfoActivity extends AppCompatActivity {
         if(parkingSpotId == -1) {
             finish();
         }
-        parkingspotResource = new ParkingspotSpecificResource(ClientSingleton.getInstance().getClient());
+
+        if(parkingspotResource == null) {
+            parkingspotResource = ClientSingleton.getInstance().getParkingspotSpecificResource();
+        }
         setContentView(R.layout.marker_info_layout);
     }
 

@@ -35,19 +35,4 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.seanachaidh.handyparking", appContext.getPackageName());
     }
-/*
-    @Test
-    public void testPost() {
-        UserResource resource = new UserResource(this.client);
-        HashMap<String, String> postBody = new HashMap<String, String>();
-
-        postBody.put("name", "Jan");
-        postBody.put("email", "jan@jantje.com");
-        postBody.put("password", "12345");
-        postBody.put("guide", "1");
-
-        Boolean success = resource.post(null, postBody);
-        assertTrue(success);
-    }
- */
 }

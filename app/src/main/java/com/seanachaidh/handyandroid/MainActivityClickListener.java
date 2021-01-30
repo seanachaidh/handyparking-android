@@ -66,16 +66,13 @@ public class MainActivityClickListener implements View.OnClickListener {
         postParams.put("guide", bool);
 
         CompletableFuture<Boolean> retval = userResource.post(null, postParams, null);
-        retval.whenComplete(new BiConsumer<Boolean, Throwable>() {
-            @Override
-            public void accept(Boolean aBoolean, Throwable throwable) {
-                if(aBoolean) {
-                    MainActivity activity = (MainActivity) view.getContext().getApplicationContext();
-                    performLogin(emailText, passwordText);
-                } else {
-                    Toast t = Toast.makeText(view.getContext(), "User niet gemaakt", Toast.LENGTH_LONG);
-                    t.show();
-                }
+        retval.whenComplete((aBoolean, throwable) -> {
+            if(aBoolean) {
+                MainActivity activity = (MainActivity) view.getContext().getApplicationContext();
+                performLogin(emailText, passwordText);
+            } else {
+                Toast t = Toast.makeText(view.getContext(), "User niet gemaakt", Toast.LENGTH_LONG);
+                t.show();
             }
         });
     }
