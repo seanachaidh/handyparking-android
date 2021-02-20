@@ -1,74 +1,89 @@
 package com.seanachaidh.handyandroid;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
+import android.widget.TextView;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.internal.util.ReflectionUtil;
-import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.code.tempusfugit.temporal.Duration;
+import com.google.code.tempusfugit.temporal.Timeout;
+import com.google.code.tempusfugit.temporal.WaitFor;
 import com.seanachaidh.handyparking.Coordinate;
 import com.seanachaidh.handyparking.ParkingSpot;
 import com.seanachaidh.handyparking.Resources.ParkingspotSpecificResource;
 
-import org.apache.hc.core5.concurrent.CompletedFuture;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.util.ReflectionHelpers;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class MarkerInfoTest {
 
-    private static ParkingspotSpecificResource parkingspotSpecificResource = ClientSingleton
-            .getInstance()
-            .getParkingspotSpecificResource();
+    private ParkingspotSpecificResource mockParkingSpecificResource;
+    private ClientSingleton clientSingleton;
 
-    @Rule
-    public ActivityScenarioRule<MarkerInfoActivity> activityRule = new ActivityScenarioRule<>(MarkerInfoActivity.class);
-
-    @BeforeClass
-    public static void setUp() {
-
-
-
-    }
-
-
-    private static ParkingSpot createParking() {
-        ParkingSpot retval = new ParkingSpot(null, (float) 5.0, false, new Coordinate(0,0));
-        ReflectionHelpers.setField(retval, "id", "123");
-        return retval;
-    }
     @Before
-    public void setUpAll() {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("id", "123");
-        ParkingSpot parkingSpot = createParking();
-        ParkingSpot[] parkingSpots = {parkingSpot};
+    public void setupClient() {
 
-        CompletableFuture<ParkingSpot[]> parkingspotFuture = CompletableFuture.completedFuture(parkingSpots);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        Drawable drawable = InstrumentationRegistry.getInstrumentation().getTargetContext().getResources().getDrawable(R.drawable.kaart_brussel_openstreetmap);
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-
-        CompletableFuture<ByteBuffer> future = CompletableFuture.completedFuture(ByteBuffer.wrap(outputStream.toByteArray()));
-
-        when(parkingSpot.downloadImage(ClientSingleton.getInstance().getClient())).thenReturn(future);
-        when(parkingspotSpecificResource.get(params, null, null)).thenReturn(parkingspotFuture);
-        
     }
+
+
+    @Before
+    public void setup() throws NoSuchFieldException, IllegalAccessException {
+        mockParkingSpecificResource = mock(ParkingspotSpecificResource.class);
+        clientSingleton = mock(ClientSingleton.class);
+        ParkingSpot spot = makeParking(123, 50.0, 60.0);
+        CompletableFuture<ParkingSpot[]> future = CompletableFuture.completedFuture(new ParkingSpot[]{spot});
+        when(mockParkingSpecificResource.get(any(), nullable(HashMap.class), nullable(HashMap.class))).thenReturn(future);
+        when(clientSingleton.getParkingspotSpecificResource()).thenReturn(mockParkingSpecificResource);
+        Field singletonResourceField = ClientSingleton.class.getDeclaredField("instance");
+        singletonResourceField.setAccessible(true);
+        singletonResourceField.set(null, clientSingleton);
+    }
+
+    private ParkingSpot makeParking(int id, double longtitude, double latitude) throws NoSuchFieldException, IllegalAccessException {
+        ParkingSpot parkingSpot = new ParkingSpot();
+        Coordinate coordinate = new Coordinate(longtitude, latitude);
+        parkingSpot.setCoordinate(coordinate);
+        parkingSpot.setOccupied(false);
+        Field idField = parkingSpot.getClass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(parkingSpot, id);
+
+        return parkingSpot;
+    }
+
+    @Test
+    public void testShowAllInfo() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), MarkerInfoActivity.class);
+        intent.putExtra(ApplicationProvider.getApplicationContext().getString(R.string.INFO_VIEW_PARKINGID), 123);
+        ActivityScenario<MarkerInfoActivity> scenario = ActivityScenario.launch(intent);
+        scenario.onActivity(activity -> {
+
+            try {
+                WaitFor.waitOrTimeout(activity::isLoaded, Timeout.timeout(Duration.millis(10000)));
+            } catch (InterruptedException | TimeoutException e) {
+                e.printStackTrace();
+            }
+
+            TextView view = activity.findViewById(R.id.marker_info_longtitude);
+            Assert.assertNotNull(view);
+            double testLongtitude = Double.parseDouble(view.getText().toString());
+            Assert.assertEquals(60.0, testLongtitude, 0.0);
+        });
+    }
+
 }

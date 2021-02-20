@@ -24,6 +24,8 @@ public class ParkingSpot {
     private Coordinate coordinate;
 
 
+    public ParkingSpot(){}
+
     public ParkingSpot(String image, float rating, boolean occupied, Coordinate coordinate) {
         this.occupied = occupied;
         this.coordinate = coordinate;

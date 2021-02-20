@@ -21,6 +21,7 @@ import java.util.HashMap;
 public class MarkerInfoActivity extends AppCompatActivity {
     private int parkingSpotId;
     private ParkingspotSpecificResource parkingspotResource;
+    private boolean loaded = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,10 +33,9 @@ public class MarkerInfoActivity extends AppCompatActivity {
             finish();
         }
 
-        if(parkingspotResource == null) {
-            parkingspotResource = ClientSingleton.getInstance().getParkingspotSpecificResource();
-        }
+        parkingspotResource = ClientSingleton.getInstance().getParkingspotSpecificResource();
         setContentView(R.layout.marker_info_layout);
+        this.initializeInfo();
     }
 
     public void handleImageClick(View v) {
@@ -61,10 +61,9 @@ public class MarkerInfoActivity extends AppCompatActivity {
             ImageView imageView = findViewById(R.id.marker_info_image);
             Bitmap bitmap = BitmapFactory.decodeByteArray(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.array().length);
             imageView.setImageBitmap(bitmap);
+            this.loaded = true;
         }));
-
     }
-
     private void initializeInfo() {
         HashMap<String, String> params = new HashMap<>();
         params.put("id", String.valueOf(this.parkingSpotId));
@@ -74,4 +73,7 @@ public class MarkerInfoActivity extends AppCompatActivity {
         }));
     }
 
+    public boolean isLoaded() {
+        return loaded;
+    }
 }
