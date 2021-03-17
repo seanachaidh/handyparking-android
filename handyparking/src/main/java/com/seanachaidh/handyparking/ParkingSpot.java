@@ -5,9 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.concurrent.CompletedFuture;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.HttpRequest;
 
 import java.io.IOException;
 import java.io.InputStream;

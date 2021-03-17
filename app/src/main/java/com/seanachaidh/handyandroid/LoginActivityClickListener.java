@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-public class MainActivityClickListener implements View.OnClickListener {
+public class LoginActivityClickListener implements View.OnClickListener {
     private UserResource userResource;
     private LoginResource loginResource;
-    private MainActivity activity;
+    private LoginActivity activity;
 
     private String generateMD5(String s) {
         MessageDigest md5 = null;
@@ -68,7 +68,7 @@ public class MainActivityClickListener implements View.OnClickListener {
         CompletableFuture<Boolean> retval = userResource.post(null, postParams, null);
         retval.whenComplete((aBoolean, throwable) -> {
             if(aBoolean) {
-                MainActivity activity = (MainActivity) view.getContext().getApplicationContext();
+                LoginActivity activity = (LoginActivity) view.getContext().getApplicationContext();
                 performLogin(emailText, passwordText);
             } else {
                 Toast t = Toast.makeText(view.getContext(), "User niet gemaakt", Toast.LENGTH_LONG);
@@ -127,7 +127,7 @@ public class MainActivityClickListener implements View.OnClickListener {
         });
     }
 
-    public MainActivityClickListener(MainActivity parentActivity) {
+    public LoginActivityClickListener(LoginActivity parentActivity) {
         CloseableHttpClient client = ClientSingleton.getInstance().getClient();
         this.userResource = new UserResource(client);
         this.loginResource = new LoginResource(client);

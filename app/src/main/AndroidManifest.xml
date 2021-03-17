@@ -18,14 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AppActivity"
+            android:name=".mainapp.MapViewActivity"
             android:label="@string/title_activity_app"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MarkerInfoActivity"
+        <activity android:name=".mainapp.MarkerInfoActivity"
             android:label="MarkerInfoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

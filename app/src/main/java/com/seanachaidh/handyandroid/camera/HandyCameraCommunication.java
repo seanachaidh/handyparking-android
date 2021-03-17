@@ -1,4 +1,4 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.camera;
 
 import android.hardware.camera2.CameraDevice;
 

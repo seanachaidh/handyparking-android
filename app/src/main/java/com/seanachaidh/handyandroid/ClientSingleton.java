@@ -1,5 +1,6 @@
 package com.seanachaidh.handyandroid;
 
+import com.seanachaidh.handyparking.Resources.ParkingspotResource;
 import com.seanachaidh.handyparking.Resources.ParkingspotSpecificResource;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -11,10 +12,12 @@ public class ClientSingleton {
 
     private CloseableHttpClient client;
     private ParkingspotSpecificResource parkingspotSpecificResource;
+    private ParkingspotResource parkingspotResource;
 
     private ClientSingleton() {
         this.client = HttpClients.createDefault();
         this.parkingspotSpecificResource = new ParkingspotSpecificResource(this.client);
+        this.parkingspotResource = new ParkingspotResource(this.client);
     }
 
     public CloseableHttpClient getClient() {
@@ -23,6 +26,10 @@ public class ClientSingleton {
 
     public ParkingspotSpecificResource getParkingspotSpecificResource() {
         return parkingspotSpecificResource;
+    }
+
+    public ParkingspotResource getParkingspotResource() {
+        return parkingspotResource;
     }
 
     public static ClientSingleton getInstance() {

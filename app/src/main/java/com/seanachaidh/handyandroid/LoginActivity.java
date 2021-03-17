@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.seanachaidh.handyandroid.mainapp.MapViewActivity;
+
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -24,16 +26,16 @@ import org.osmdroid.views.MapView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+public class LoginActivity extends AppCompatActivity implements LocationListener {
 
     public static final int REQUEST_CODE = 1;
-    public static final String[] PERMISSONS = {
+    public static final String[] PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
     };
-    private StartScreenScroll start_screen_scroll;
+    private LoginActivityScroll start_screen_scroll;
 
 
-    public MainActivity() {
+    public LoginActivity() {
     }
 
     private void showScrollView() {
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private void checkPermissions() {
         ArrayList<String> toRequest = new ArrayList<>();
-        for (String p : MainActivity.PERMISSONS) {
+        for (String p : LoginActivity.PERMISSIONS) {
             if (this.checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
                 //we need to ask
                 toRequest.add(p);
@@ -137,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     public void startAppActivity(String token) {
-        Intent intent = new Intent(this, AppActivity.class);
+        Intent intent = new Intent(this, MapViewActivity.class);
         intent.putExtra("token", token);
         startActivityForResult(intent, 1);
     }
@@ -145,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void showLogin(View view) {
         showScrollView();
         this.start_screen_scroll.useLogin();
-
     }
 
     public void showRegister(View view) {

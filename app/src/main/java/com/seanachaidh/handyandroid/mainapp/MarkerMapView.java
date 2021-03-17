@@ -1,13 +1,9 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.mainapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.location.LocationManager;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -15,9 +11,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 
-import com.seanachaidh.handyparking.Coordinate;
+import com.seanachaidh.handyandroid.ClientSingleton;
+import com.seanachaidh.handyandroid.LoginMapView;
+import com.seanachaidh.handyandroid.R;
 import com.seanachaidh.handyparking.ParkingSpot;
 import com.seanachaidh.handyparking.Resources.ParkingspotResource;
 
@@ -36,12 +33,15 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 
 public class MarkerMapView extends MapView implements GestureDetector.OnGestureListener {
     private GestureDetector gestureDetector;
+    private boolean loaded;
+
     private void initMarkerMap() {
+        this.loaded = false;
         loadMarkersSlow();
         this.getController().setZoom(LoginMapView.ZOOM_LEVEL);
         gestureDetector = new GestureDetector(this.getContext(), this);
@@ -77,8 +77,15 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
         initMarkerMap();
     }
 
+    public List<Marker> getAllMarkders() {
+        return this.getOverlays().stream()
+                .filter(o -> o instanceof Marker)
+                .map(overlay -> (Marker) overlay)
+                .collect(Collectors.toList());
+    }
+
     private void loadMarkers() {
-        ParkingspotResource parkingspotResource = new ParkingspotResource(ClientSingleton.getInstance().getClient());
+        ParkingspotResource parkingspotResource = ClientSingleton.getInstance().getParkingspotResource();
         final MarkerMapView parent = this;
         CompletableFuture<ParkingSpot[]> future = parkingspotResource.get(null, null, null);
         future.whenComplete((parkingSpots, throwable) -> {
@@ -105,7 +112,7 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
     }
 
     public void loadMarkersSlow() {
-        ParkingspotResource parkingspotResource = new ParkingspotResource(ClientSingleton.getInstance().getClient());
+        ParkingspotResource parkingspotResource = ClientSingleton.getInstance().getParkingspotResource();
         final MarkerMapView parent = this;
         CompletableFuture<ParkingSpot[]> future = parkingspotResource.get(null, null, null);
         future.whenComplete((parkingSpots, throwable) -> {
@@ -178,5 +185,9 @@ public class MarkerMapView extends MapView implements GestureDetector.OnGestureL
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         return false;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
     }
 }

@@ -1,4 +1,4 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.mainapp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import com.seanachaidh.handyandroid.ClientSingleton;
+import com.seanachaidh.handyandroid.R;
 import com.seanachaidh.handyparking.ParkingSpot;
 import com.seanachaidh.handyparking.Resources.ParkingspotSpecificResource;
 

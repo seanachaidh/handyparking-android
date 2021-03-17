@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.code.tempusfugit.temporal.Duration;
 import com.google.code.tempusfugit.temporal.Timeout;
 import com.google.code.tempusfugit.temporal.WaitFor;
+import com.seanachaidh.handyandroid.mainapp.MarkerInfoActivity;
 import com.seanachaidh.handyparking.Coordinate;
 import com.seanachaidh.handyparking.ParkingSpot;
 import com.seanachaidh.handyparking.Resources.ParkingspotSpecificResource;
@@ -31,20 +32,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class MarkerInfoTest {
-
-    private ParkingspotSpecificResource mockParkingSpecificResource;
-    private ClientSingleton clientSingleton;
-
-    @Before
-    public void setupClient() {
-
-    }
-
-
     @Before
     public void setup() throws NoSuchFieldException, IllegalAccessException {
-        mockParkingSpecificResource = mock(ParkingspotSpecificResource.class);
-        clientSingleton = mock(ClientSingleton.class);
+        ParkingspotSpecificResource mockParkingSpecificResource = mock(ParkingspotSpecificResource.class);
+        ClientSingleton clientSingleton = mock(ClientSingleton.class);
         ParkingSpot spot = makeParking(123, 50.0, 60.0);
         CompletableFuture<ParkingSpot[]> future = CompletableFuture.completedFuture(new ParkingSpot[]{spot});
         when(mockParkingSpecificResource.get(any(), nullable(HashMap.class), nullable(HashMap.class))).thenReturn(future);

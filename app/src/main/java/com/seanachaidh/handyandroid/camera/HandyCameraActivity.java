@@ -1,4 +1,4 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.camera;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -13,6 +13,8 @@ import android.view.SurfaceView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.seanachaidh.handyandroid.R;
 
 public class HandyCameraActivity extends AppCompatActivity implements HandyCameraCommunication {
 
@@ -51,6 +53,7 @@ public class HandyCameraActivity extends AppCompatActivity implements HandyCamer
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        initializeCamera();
     }
 
     @Override

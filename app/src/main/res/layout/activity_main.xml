@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".LoginActivity">
 
     <Button
         android:id="@+id/login_button"
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.seanachaidh.handyandroid.StartScreenScroll
+    <com.seanachaidh.handyandroid.LoginActivityScroll
         android:id="@+id/login_scroll"
         android:layout_width="297dp"
         android:layout_height="354dp"

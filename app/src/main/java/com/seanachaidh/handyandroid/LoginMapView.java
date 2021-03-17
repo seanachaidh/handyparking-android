@@ -15,7 +15,7 @@ import org.osmdroid.views.MapView;
 
 import java.util.prefs.Preferences;
 
-public class LoginMapView extends MapView implements Subscriber {
+public class LoginMapView extends MapView {
 
     public static final double ZOOM_LEVEL = 15.0;
 
@@ -49,9 +49,4 @@ public class LoginMapView extends MapView implements Subscriber {
         this.getController().setZoom(ZOOM_LEVEL);
     }
 
-    @Override
-    public void onUpdate(Object data) {
-        Coordinate c = (Coordinate) data;
-        getController().setCenter(new GeoPoint(c.getLatitude(), c.getLongtitude()));
-    }
 }

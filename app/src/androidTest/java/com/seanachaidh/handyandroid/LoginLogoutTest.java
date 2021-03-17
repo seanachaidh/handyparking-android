@@ -9,9 +9,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.seanachaidh.handyandroid.mainapp.MapViewActivity;
 import com.seanachaidh.handyparking.Resources.RevertResource;
 
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,27 +23,24 @@ import java.util.concurrent.CompletableFuture;
 
 @RunWith(AndroidJUnit4.class)
 public class LoginLogoutTest {
-    private SharedPreferences mainActivitySharedPrefs = null;
-    private MainActivity ctx;
-    private MainActivity mainActivity;
 
-    @BeforeClass
+    @Before
     public void setUpClass() {
 
         /*
          * Clear shared preferences for a fresh start
          */
-        mainActivity = (MainActivity) InstrumentationRegistry.getInstrumentation().getTargetContext();
+        LoginActivity loginActivity = (LoginActivity) InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        this.mainActivitySharedPrefs = mainActivity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = this.mainActivitySharedPrefs.edit();
+        SharedPreferences mainActivitySharedPrefs = loginActivity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mainActivitySharedPrefs.edit();
         editor.clear();
         editor.apply();
     }
 
     @Test
     public void TestRegister() {
-        MainActivity toTest = ApplicationProvider.getApplicationContext();
+        LoginActivity toTest = ApplicationProvider.getApplicationContext();
 
         toTest.findViewById(R.id.register_button).performClick();
 
@@ -50,11 +50,10 @@ public class LoginLogoutTest {
 
         toTest.findViewById(R.id.register_confirmation_button).performClick();
 
-        Intent nextIntent = new Intent(toTest, AppActivity.class);
-
+        Intent nextIntent = new Intent(toTest, MapViewActivity.class);
     }
 
-    @AfterClass
+    @After
     public void tearDownClass() {
         RevertResource revert = new RevertResource(ClientSingleton.getInstance().getClient());
         final CompletableFuture<Boolean> future = revert.post(null, null, null);

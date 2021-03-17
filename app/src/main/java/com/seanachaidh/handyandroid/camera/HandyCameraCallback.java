@@ -1,6 +1,5 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.camera;
 
-import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.util.Log;
 

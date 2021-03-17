@@ -1,4 +1,4 @@
-package com.seanachaidh.handyandroid;
+package com.seanachaidh.handyandroid.mainapp;
 
 import android.Manifest;
 import android.content.Intent;
@@ -17,6 +17,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.seanachaidh.handyandroid.ClientSingleton;
+import com.seanachaidh.handyandroid.R;
 import com.seanachaidh.handyparking.Resources.LoginResource;
 
 import org.osmdroid.util.GeoPoint;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
-public class AppActivity extends AppCompatActivity implements LocationListener {
+public class MapViewActivity extends AppCompatActivity implements LocationListener {
 
     private boolean hasCentered = false;
     public static final int REQUEST_CODE = 2;
@@ -36,7 +38,7 @@ public class AppActivity extends AppCompatActivity implements LocationListener {
 
     private void checkPermissions() {
         ArrayList<String> toRequest = new ArrayList<>();
-        for (String p : AppActivity.PERMISSONS) {
+        for (String p : MapViewActivity.PERMISSONS) {
             if (this.checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
                 //we need to ask
                 toRequest.add(p);
@@ -74,10 +76,9 @@ public class AppActivity extends AppCompatActivity implements LocationListener {
         return true;
     }
 
-
     public void handleLogout(MenuItem item) {
         LoginResource resource = new LoginResource(ClientSingleton.getInstance().getClient());
-        final AppActivity ctx = this;
+        final MapViewActivity ctx = this;
         String token = this.getIntent().getStringExtra("token");
         if(!token.equals("")) {
             HashMap<String, String> headers = new HashMap<>();
